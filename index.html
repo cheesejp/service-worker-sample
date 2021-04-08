@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <title>Google Maps Api Sample</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <!--[if lt IE 9]>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="shortcut icon" href="">
+</head>
+
+<body>
+
+
+    <p>index</p>
+
+    <script>
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js').then(function (registration) {
+                    // Registration was successful
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function (err) {
+                    // registration failed :(
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        const CACHE_STORAGE_NAME = 'v1';
+        self.addEventListener('fetch', function (event) {
+            // assets 以外は何もしない。
+            if (!event.request.url.includes('assets/')) return;
+            event.respondWith(
+                caches.match(event.request).then(function (resp) {
+                    // キャッシュが存在すれば、キャッシュを利用する。なければ取得し、キャッシュに保存する。
+                    return resp || fetch(event.request).then(function (response) {
+                        return caches.open(CACHE_STORAGE_NAME).then(function (cache) {
+                            cache.put(event.request, response.clone());
+                            return response;
+                        });
+                    });
+                })
+            );
+        });
+    </script>
+
+</body>
+
+</html>
