@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
-    <title>Google Maps Api Sample</title>
+    <title>Service Worker Sample</title>
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,12 +17,18 @@
 </head>
 
 <body>
+    <style>
+        video {
+            max-width: 90vw;
+        }
+    </style>
 
-
-    <p>index</p>
+    <h1>Service Worker Sample</h1>
+    <p>一度読み込んだ動画はService Workerによってキャッシュされ、オフラインで再生できる。Chromeで確認済み。</p>
+    <video src="/assets/sample1.mp4" autoplay loop></video>
+    <video src="/assets/sample2.mp4" autoplay loop></video>
 
     <script>
-
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('/sw.js').then(function (registration) {
@@ -37,11 +43,9 @@
 
         const CACHE_STORAGE_NAME = 'v1';
         self.addEventListener('fetch', function (event) {
-            // assets 以外は何もしない。
             if (!event.request.url.includes('assets/')) return;
             event.respondWith(
                 caches.match(event.request).then(function (resp) {
-                    // キャッシュが存在すれば、キャッシュを利用する。なければ取得し、キャッシュに保存する。
                     return resp || fetch(event.request).then(function (response) {
                         return caches.open(CACHE_STORAGE_NAME).then(function (cache) {
                             cache.put(event.request, response.clone());
